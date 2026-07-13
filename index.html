@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SignalReach — Audience &amp; Campaign Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy: #0F1720;
+    --navy-2: #172431;
+    --navy-3: #1F303F;
+    --paper: #F6F7F9;
+    --paper-card: #FFFFFF;
+    --ink: #16202B;
+    --ink-soft: #55636F;
+    --line: #E3E7EB;
+    --amber: #E8A33D;
+    --amber-deep: #C6841F;
+    --teal: #2E8B8B;
+    --brick: #C0392B;
+    --radius: 10px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font-family:'IBM Plex Sans',sans-serif;}
+  h1,h2,h3,.display{font-family:'Space Grotesk',sans-serif;letter-spacing:-0.01em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  a{color:inherit;}
+
+  /* ---------- Layout ---------- */
+  #app{display:flex;min-height:100vh;}
+  .sidebar{
+    width:230px;flex:0 0 230px;background:var(--navy);color:#DCE4EB;
+    display:flex;flex-direction:column;padding:22px 16px;
+  }
+  .brand{display:flex;align-items:center;gap:10px;padding:4px 6px 22px;}
+  .brand-mark{
+    width:14px;height:14px;border-radius:50%;background:var(--amber);
+    box-shadow:0 0 0 4px rgba(232,163,61,0.18);
+    animation:pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{box-shadow:0 0 0 4px rgba(232,163,61,0.18);}
+    50%{box-shadow:0 0 0 8px rgba(232,163,61,0.05);}
+  }
+  @media (prefers-reduced-motion: reduce){ .brand-mark{animation:none;} }
+  .brand-name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:17px;color:#fff;}
+  .brand-sub{font-size:10.5px;color:#8DA0AF;letter-spacing:0.08em;text-transform:uppercase;margin-top:1px;}
+
+  nav.tabs{display:flex;flex-direction:column;gap:2px;margin-top:8px;}
+  nav.tabs button{
+    all:unset;cursor:pointer;padding:10px 12px;border-radius:8px;font-size:14px;
+    color:#B8C4CD;display:flex;align-items:center;gap:10px;transition:background .15s,color .15s;
+  }
+  nav.tabs button:hover{background:var(--navy-2);color:#fff;}
+  nav.tabs button.active{background:var(--navy-3);color:#fff;box-shadow:inset 3px 0 0 var(--amber);}
+  nav.tabs .icon{width:16px;text-align:center;font-size:14px;opacity:.9;}
+
+  .sidebar-footer{margin-top:auto;padding-top:16px;border-top:1px solid #24333F;font-size:12px;color:#7E8F9C;}
+  .sidebar-footer .who{color:#DCE4EB;font-weight:600;font-size:13px;}
+  .role-badge{
+    display:inline-block;margin-top:4px;font-size:10.5px;padding:2px 8px;border-radius:20px;
+    background:rgba(232,163,61,0.15);color:var(--amber);letter-spacing:.03em;text-transform:uppercase;
+  }
+  .logout{margin-top:10px;font-size:12.5px;color:#8DA0AF;cursor:pointer;text-decoration:underline;}
+
+  main{flex:1;padding:32px 40px;max-width:1180px;}
+  .page-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:22px;}
+  .page-head h1{font-size:24px;margin:0 0 4px;}
+  .page-head p{margin:0;color:var(--ink-soft);font-size:14px;}
+
+  .grid{display:grid;gap:16px;}
+  .grid.cols-4{grid-template-columns:repeat(4,1fr);}
+  .grid.cols-3{grid-template-columns:2fr 1fr;}
+  .grid.cols-2{grid-template-columns:1fr 1fr;}
+
+  .card{
+    background:var(--paper-card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:20px;
+  }
+  .card h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);margin:0 0 10px;font-weight:600;font-family:'IBM Plex Sans';}
+  .stat{font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;color:var(--navy);}
+  .stat-label{font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
+
+  label{display:block;font-size:12.5px;color:var(--ink-soft);margin:10px 0 4px;font-weight:500;}
+  input,select,textarea{
+    width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:7px;font-size:14px;
+    font-family:'IBM Plex Sans',sans-serif;background:#fff;color:var(--ink);
+  }
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--amber);outline-offset:1px;border-color:var(--amber);}
+  textarea{resize:vertical;min-height:70px;}
+
+  button.btn{
+    all:unset;cursor:pointer;padding:9px 16px;border-radius:7px;font-size:13.5px;font-weight:600;
+    background:var(--navy);color:#fff;display:inline-flex;align-items:center;gap:6px;
+  }
+  button.btn:hover{background:var(--navy-2);}
+  button.btn.amber{background:var(--amber);color:#1b1204;}
+  button.btn.amber:hover{background:var(--amber-deep);color:#fff;}
+  button.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);}
+  button.btn.ghost:hover{border-color:var(--ink-soft);}
+  button.btn.small{padding:5px 10px;font-size:12px;}
+  button.btn:disabled{opacity:.5;cursor:not-allowed;}
+
+  table{width:100%;border-collapse:collapse;font-size:13.5px;}
+  th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);
+     padding:8px 10px;border-bottom:2px solid var(--line);font-weight:600;}
+  td{padding:9px 10px;border-bottom:1px solid var(--line);}
+  tr:hover td{background:#FAFBFC;}
+
+  .pill{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.02em;}
+  .pill.draft{background:#EEF0F2;color:#5A6570;}
+  .pill.review{background:#FDF1DC;color:var(--amber-deep);}
+  .pill.scheduled{background:#DEEAF6;color:#2563A3;}
+  .pill.sent{background:#DCEEEE;color:var(--teal);}
+  .pill.completed{background:#E1F0E1;color:#2F7A3D;}
+  .pill.cancelled{background:#FBE3E1;color:var(--brick);}
+
+  .toast{
+    position:fixed;bottom:22px;right:22px;background:var(--navy);color:#fff;padding:12px 18px;
+    border-radius:8px;font-size:13.5px;box-shadow:0 8px 24px rgba(0,0,0,.2);
+    display:none;max-width:320px;z-index:50;border-left:3px solid var(--amber);
+  }
+  .toast.error{border-left-color:var(--brick);}
+  .toast.show{display:block;animation:slideIn .25s ease;}
+  @keyframes slideIn{from{transform:translateY(10px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+
+  .flex-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .muted{color:var(--ink-soft);font-size:13px;}
+  .divider{height:1px;background:var(--line);margin:16px 0;}
+  .segment-count{
+    display:inline-flex;align-items:center;gap:8px;background:#F2F5F7;border-radius:8px;
+    padding:8px 14px;font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:14px;color:var(--navy);
+  }
+  .segment-count .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);}
+
+  /* Login screen */
+  .login-wrap{
+    min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;
+    background:var(--navy);position:relative;overflow:hidden;
+  }
+  .login-wrap::before{
+    content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(600px 300px at 15% 20%, rgba(232,163,61,0.10), transparent 60%),
+      radial-gradient(500px 260px at 85% 80%, rgba(46,139,139,0.14), transparent 60%);
+  }
+  .login-card{
+    position:relative;z-index:1;background:#101B25;border:1px solid #26374400;
+    border:1px solid rgba(255,255,255,0.08);
+    padding:38px 36px;border-radius:14px;width:380px;color:#fff;
+    box-shadow:0 20px 60px rgba(0,0,0,0.4);
+  }
+  .login-card .brand{padding:0 0 18px;}
+  .login-card h2{font-size:19px;margin:0 0 2px;color:#fff;}
+  .login-card p.sub{color:#8DA0AF;font-size:13px;margin:0 0 20px;}
+  .login-card label{color:#9FB0BB;}
+  .login-card input{background:#0C1620;border-color:#2A3B48;color:#fff;}
+  .login-card input:focus{border-color:var(--amber);}
+  .login-toggle{margin-top:16px;font-size:13px;color:#8DA0AF;text-align:center;}
+  .login-toggle span{color:var(--amber);cursor:pointer;text-decoration:underline;}
+  .login-card .btn.amber{width:100%;justify-content:center;margin-top:6px;}
+  .error-msg{color:#F5A9A0;font-size:12.5px;margin-top:8px;min-height:16px;}
+
+  .empty-state{text-align:center;padding:40px 20px;color:var(--ink-soft);}
+  .empty-state .glyph{font-size:26px;margin-bottom:8px;}
+
+  .hint{font-size:12px;color:var(--ink-soft);margin-top:6px;}
+  code.inline{background:#F0F2F4;padding:1px 6px;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:12px;}
+</style>
+</head>
+<body>
+
+<div id="login-screen" class="login-wrap">
+  <a href="landing.html" style="position:absolute;top:22px;left:26px;color:#8DA0AF;font-size:13px;z-index:2;">← Back to home</a>
+  <div class="login-card">
+    <div class="brand"><div class="brand-mark"></div><div><div class="brand-name">SignalReach</div><div class="brand-sub">Mass Communication Console</div></div></div>
+    <h2 id="auth-title">Sign in</h2>
+    <p class="sub" id="auth-sub">Access the audience &amp; campaign planning workspace.</p>
+
+    <div id="register-fields" style="display:none">
+      <label>Full name</label>
+      <input id="reg-name" placeholder="e.g. Anjali Verma">
+      <label>Organization <span class="muted">(optional)</span></label>
+      <input id="reg-org" placeholder="e.g. Dept of Public Health">
+    </div>
+
+    <label>Email</label>
+    <input id="auth-email" placeholder="you@department.gov.in">
+    <label>Password</label>
+    <input id="auth-password" type="password" placeholder="••••••••">
+
+    <button class="btn amber" id="auth-submit" onclick="handleAuthSubmit()">Sign in</button>
+    <div class="error-msg" id="auth-error"></div>
+    <div class="login-toggle" id="auth-toggle">
+      New here? <span onclick="toggleAuthMode()">Create an account</span>
+    </div>
+    <div class="hint">First registered account automatically becomes <code class="inline">admin</code>.</div>
+  </div>
+</div>
+
+<div id="app" style="display:none">
+  <div class="sidebar">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div><div class="brand-name">SignalReach</div><div class="brand-sub">Milestone 1</div></div>
+    </div>
+    <nav class="tabs">
+      <button data-tab="dashboard" class="active" onclick="switchTab('dashboard')"><span class="icon">◇</span> Dashboard</button>
+      <button data-tab="audience" onclick="switchTab('audience')"><span class="icon">▤</span> Audience</button>
+      <button data-tab="segmentation" onclick="switchTab('segmentation')"><span class="icon">◈</span> Segmentation</button>
+      <button data-tab="campaigns" onclick="switchTab('campaigns')"><span class="icon">▲</span> Campaigns</button>
+      <button data-tab="ai-studio" onclick="switchTab('ai-studio')"><span class="icon">✦</span> AI Content Studio</button>
+      <button data-tab="templates" onclick="switchTab('templates')"><span class="icon">▥</span> Templates</button>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="who" id="side-name">—</div>
+      <div class="role-badge" id="side-role">—</div>
+      <div class="logout" onclick="logout()">Sign out</div>
+    </div>
+  </div>
+
+  <main>
+    <!-- DASHBOARD -->
+    <section id="page-dashboard">
+      <div class="page-head">
+        <div><h1>Overview</h1><p>Live snapshot of your audience base and campaign pipeline.</p></div>
+      </div>
+      <div class="grid cols-4" id="dash-stats"></div>
+      <div class="divider"></div>
+      <div class="card">
+        <h3>Recent campaigns</h3>
+        <div id="dash-recent-campaigns"></div>
+      </div>
+    </section>
+
+    <!-- AUDIENCE -->
+    <section id="page-audience" style="display:none">
+      <div class="page-head">
+        <div><h1>Audience Management</h1><p>Recipient database — demographics, geography, language and organization hierarchy.</p></div>
+      </div>
+      <div class="grid cols-3">
+        <div class="card">
+          <h3>Recipients (<span id="audience-count-label">0</span>)</h3>
+          <div id="audience-table-wrap"></div>
+        </div>
+        <div>
+          <div class="card">
+            <h3>Add recipient</h3>
+            <label>Full name *</label><input id="af-name">
+            <label>Email</label><input id="af-email">
+            <label>Phone</label><input id="af-phone">
+            <label>State</label><input id="af-state">
+            <label>District</label><input id="af-district">
+            <label>Preferred language</label><input id="af-lang" placeholder="Hindi, English, Marathi...">
+            <label>Occupation</label><input id="af-occupation">
+            <label>Organization</label><input id="af-org">
+            <label>Department</label><input id="af-dept">
+            <label>Tags</label><input id="af-tags" placeholder="priority, rural...">
+            <button class="btn amber" style="margin-top:14px;width:100%;justify-content:center" onclick="createAudience()">Add recipient</button>
+          </div>
+          <div class="card" style="margin-top:16px">
+            <h3>Bulk import</h3>
+            <p class="muted" style="margin-top:0">Upload a CSV or XLSX. Required column: <code class="inline">full_name</code>. Optional: email, phone, state, district, preferred_language, occupation, organization, department, tags.</p>
+            <input type="file" id="bulk-file" accept=".csv,.xlsx,.xls">
+            <button class="btn ghost" style="margin-top:10px;width:100%;justify-content:center" onclick="bulkImport()">Import file</button>
+            <div id="bulk-result" class="hint"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEGMENTATION -->
+    <section id="page-segmentation" style="display:none">
+      <div class="page-head">
+        <div><h1>Audience Segmentation</h1><p>Combine filters to build a targeted recipient segment for a campaign.</p></div>
+      </div>
+      <div class="card">
+        <div class="grid cols-4">
+          <div><label>State</label><input id="seg-state"></div>
+          <div><label>District</label><input id="seg-district"></div>
+          <div><label>Preferred language</label><input id="seg-lang"></div>
+          <div><label>Organization</label><input id="seg-org"></div>
+          <div><label>Department</label><input id="seg-dept"></div>
+          <div><label>Occupation</label><input id="seg-occupation"></div>
+          <div><label>Tag</label><input id="seg-tag"></div>
+          <div style="display:flex;align-items:flex-end;"><button class="btn amber" style="width:100%;justify-content:center" onclick="runSegmentation()">Run segment</button></div>
+        </div>
+        <div class="divider"></div>
+        <div class="flex-row">
+          <div class="segment-count"><span class="dot"></span><span id="seg-count-value">0</span>&nbsp;matched recipients</div>
+        </div>
+        <div class="divider"></div>
+        <div id="seg-table-wrap"></div>
+      </div>
+    </section>
+
+    <!-- CAMPAIGNS -->
+    <section id="page-campaigns" style="display:none">
+      <div class="page-head">
+        <div><h1>Campaign Planning</h1><p>Draft → Review → Scheduled → Sent → Completed.</p></div>
+      </div>
+      <div class="grid cols-3">
+        <div class="card">
+          <h3>All campaigns</h3>
+          <div id="campaigns-table-wrap"></div>
+        </div>
+        <div class="card">
+          <h3>New campaign</h3>
+          <label>Title *</label><input id="cf-title">
+          <label>Type</label>
+          <select id="cf-type">
+            <option value="awareness_drive">Awareness Drive</option>
+            <option value="emergency_alert">Emergency Alert</option>
+            <option value="educational_notification">Educational Notification</option>
+            <option value="organizational_announcement">Organizational Announcement</option>
+          </select>
+          <label>Message content</label>
+          <textarea id="cf-message" placeholder="Draft message text..."></textarea>
+          <label>Template <span class="muted">(optional)</span></label>
+          <select id="cf-template"><option value="">— none —</option></select>
+          <div class="divider"></div>
+          <p class="muted" style="margin:0 0 8px">Target segment (leave blank = all recipients)</p>
+          <label>State</label><input id="cf-seg-state">
+          <label>Preferred language</label><input id="cf-seg-lang">
+          <label>Organization</label><input id="cf-seg-org">
+          <label>Department</label><input id="cf-seg-dept">
+          <button class="btn ghost" style="margin-top:10px;width:100%;justify-content:center" onclick="previewCampaignSegment()">Preview audience size</button>
+          <div class="segment-count" id="cf-seg-preview" style="margin-top:10px;display:none"><span class="dot"></span><span id="cf-seg-preview-count">0</span>&nbsp;recipients match</div>
+          <button class="btn amber" style="margin-top:14px;width:100%;justify-content:center" onclick="createCampaign()">Create campaign (draft)</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI CONTENT STUDIO -->
+    <section id="page-ai-studio" style="display:none">
+      <div class="page-head">
+        <div><h1>AI Content Studio</h1><p>Generate, translate, and validate campaign content — Milestone 2.</p></div>
+      </div>
+
+      <div class="grid cols-3">
+        <div>
+          <div class="card">
+            <h3>Generate content</h3>
+            <label>Campaign type</label>
+            <select id="ai-gen-type">
+              <option value="awareness_drive">Awareness Drive</option>
+              <option value="emergency_alert">Emergency Alert</option>
+              <option value="educational_notification">Educational Notification</option>
+              <option value="organizational_announcement">Organizational Announcement</option>
+            </select>
+            <label>Brief — what should this message say?</label>
+            <textarea id="ai-gen-brief" placeholder="e.g. Remind citizens in flood-prone areas to evacuate to the nearest relief center by 6 PM today."></textarea>
+            <div class="grid cols-2" style="margin-top:4px">
+              <div><label>Target language</label><input id="ai-gen-lang" value="Hindi"></div>
+              <div><label>Channel</label>
+                <select id="ai-gen-channel">
+                  <option value="general">General</option>
+                  <option value="sms">SMS</option>
+                  <option value="whatsapp">WhatsApp</option>
+                  <option value="email">Email</option>
+                </select>
+              </div>
+            </div>
+            <label>Tone <span class="muted">(optional)</span></label>
+            <input id="ai-gen-tone" placeholder="e.g. urgent, reassuring, formal">
+            <label>Audience context <span class="muted">(optional)</span></label>
+            <input id="ai-gen-audience" placeholder="e.g. rural farmers in Madhya Pradesh">
+            <button class="btn amber" style="margin-top:14px;width:100%;justify-content:center" onclick="generateContent()">Generate content</button>
+          </div>
+
+          <div class="card" style="margin-top:16px">
+            <h3>Translate existing text</h3>
+            <label>Text</label>
+            <textarea id="ai-translate-text" placeholder="Paste text to translate..."></textarea>
+            <div class="grid cols-2" style="margin-top:4px">
+              <div><label>Source language</label><input id="ai-translate-source" value="English"></div>
+              <div><label>Target language</label><input id="ai-translate-lang" placeholder="e.g. Marathi"></div>
+            </div>
+            <label>Translation engine</label>
+            <select id="ai-translate-engine">
+              <option value="claude">Claude (tone-aware, any language)</option>
+              <option value="bhashini">Bhashini — Govt of India Indic NMT (dedicated Indian-language models)</option>
+            </select>
+            <div class="hint" id="ai-translate-hint" style="display:none">Bhashini requires a free API key from bhashini.gov.in — set BHASHINI_USER_ID and BHASHINI_API_KEY on the backend. Best for citizens who read only their regional language and need accurate native-script translation.</div>
+            <button class="btn ghost" style="margin-top:10px;width:100%;justify-content:center" onclick="translateContent()">Translate</button>
+          </div>
+        </div>
+
+        <div style="grid-column: span 2">
+          <div class="card">
+            <h3>Draft output</h3>
+            <textarea id="ai-output-text" style="min-height:160px" placeholder="Generated or translated content will appear here — you can edit it directly before checking or using it."></textarea>
+            <div class="flex-row" style="margin-top:12px">
+              <button class="btn ghost small" onclick="analyzeSentiment()">Check tone / sentiment</button>
+              <button class="btn ghost small" onclick="runComplianceCheck()">Run compliance check</button>
+              <button class="btn amber small" onclick="copyToCampaign()">Use in new campaign →</button>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:16px" id="ai-sentiment-card">
+            <h3>Tone &amp; sentiment</h3>
+            <div id="ai-sentiment-result"><p class="muted" style="margin:0">Run "Check tone / sentiment" above to see results here.</p></div>
+          </div>
+
+          <div class="card" style="margin-top:16px">
+            <h3>Compliance check</h3>
+            <div id="ai-compliance-result"><p class="muted" style="margin:0">Run "Run compliance check" above to validate this draft.</p></div>
+          </div>
+
+          <div class="card" style="margin-top:16px">
+            <h3>Recent AI activity</h3>
+            <div id="ai-history-wrap"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEMPLATES -->
+    <section id="page-templates" style="display:none">
+      <div class="page-head">
+        <div><h1>Content Templates</h1><p>Reusable communication templates by type and language.</p></div>
+      </div>
+      <div class="grid cols-3">
+        <div class="card">
+          <h3>Template library</h3>
+          <div id="templates-table-wrap"></div>
+        </div>
+        <div class="card">
+          <h3>New template</h3>
+          <label>Name *</label><input id="tf-name">
+          <label>Campaign type</label>
+          <select id="tf-type">
+            <option value="awareness_drive">Awareness Drive</option>
+            <option value="emergency_alert">Emergency Alert</option>
+            <option value="educational_notification">Educational Notification</option>
+            <option value="organizational_announcement">Organizational Announcement</option>
+          </select>
+          <label>Language</label><input id="tf-lang" value="English">
+          <label>Subject <span class="muted">(email)</span></label><input id="tf-subject">
+          <label>Body *</label><textarea id="tf-body"></textarea>
+          <button class="btn amber" style="margin-top:14px;width:100%;justify-content:center" onclick="createTemplate()">Save template</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   SignalReach — Milestone 1 frontend
+   Talks directly to the FastAPI backend (default http://localhost:8000)
+   ============================================================ */
+const API_BASE = window.API_BASE_OVERRIDE || "http://localhost:8000";
+
+let state = {
+  token: localStorage.getItem("sr_token") || null,
+  user: JSON.parse(localStorage.getItem("sr_user") || "null"),
+  authMode: "login", // or "register"
+};
+
+function showToast(msg, isError=false){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast show" + (isError ? " error" : "");
+  setTimeout(()=> t.className = "toast", 3000);
+}
+
+async function api(path, { method="GET", body=null, isForm=false } = {}){
+  const headers = {};
+  if(state.token) headers["Authorization"] = "Bearer " + state.token;
+  if(!isForm && body) headers["Content-Type"] = "application/json";
+
+  const res = await fetch(API_BASE + path, {
+    method,
+    headers,
+    body: body ? (isForm ? body : JSON.stringify(body)) : undefined,
+  });
+
+  let data = null;
+  try { data = await res.json(); } catch(e) { /* no body */ }
+
+  if(!res.ok){
+    const detail = (data && data.detail) ? (Array.isArray(data.detail) ? data.detail.map(d=>d.msg).join(", ") : data.detail) : `Request failed (${res.status})`;
+    throw new Error(detail);
+  }
+  return data;
+}
+
+/* ---------------- AUTH ---------------- */
+function toggleAuthMode(){
+  state.authMode = state.authMode === "login" ? "register" : "login";
+  document.getElementById("register-fields").style.display = state.authMode === "register" ? "block" : "none";
+  document.getElementById("auth-title").textContent = state.authMode === "register" ? "Create account" : "Sign in";
+  document.getElementById("auth-sub").textContent = state.authMode === "register"
+    ? "Set up access to the communication console."
+    : "Access the audience & campaign planning workspace.";
+  document.getElementById("auth-submit").textContent = state.authMode === "register" ? "Create account" : "Sign in";
+  document.getElementById("auth-toggle").innerHTML = state.authMode === "register"
+    ? 'Already have an account? <span onclick="toggleAuthMode()">Sign in</span>'
+    : 'New here? <span onclick="toggleAuthMode()">Create an account</span>';
+  document.getElementById("auth-error").textContent = "";
+}
+
+async function handleAuthSubmit(){
+  const email = document.getElementById("auth-email").value.trim();
+  const password = document.getElementById("auth-password").value;
+  const errEl = document.getElementById("auth-error");
+  errEl.textContent = "";
+
+  if(!email || !password){ errEl.textContent = "Email and password are required."; return; }
+
+  try{
+    if(state.authMode === "register"){
+      const full_name = document.getElementById("reg-name").value.trim();
+      const organization = document.getElementById("reg-org").value.trim();
+      if(!full_name){ errEl.textContent = "Full name is required."; return; }
+      await api("/auth/register", { method:"POST", body:{ full_name, email, password, organization: organization || null }});
+      showToast("Account created — signing you in...");
+    }
+    // Login (OAuth2 form-encoded)
+    const form = new URLSearchParams();
+    form.append("username", email);
+    form.append("password", password);
+    const res = await fetch(API_BASE + "/auth/login", { method:"POST", headers:{"Content-Type":"application/x-www-form-urlencoded"}, body: form });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.detail || "Login failed");
+
+    state.token = data.access_token;
+    state.user = data.user;
+    localStorage.setItem("sr_token", state.token);
+    localStorage.setItem("sr_user", JSON.stringify(state.user));
+    enterApp();
+  }catch(e){
+    errEl.textContent = e.message;
+  }
+}
+
+function logout(){
+  state.token = null; state.user = null;
+  localStorage.removeItem("sr_token"); localStorage.removeItem("sr_user");
+  document.getElementById("app").style.display = "none";
+  document.getElementById("login-screen").style.display = "flex";
+}
+
+function enterApp(){
+  document.getElementById("login-screen").style.display = "none";
+  document.getElementById("app").style.display = "flex";
+  document.getElementById("side-name").textContent = state.user.full_name;
+  document.getElementById("side-role").textContent = state.user.role.replace("_"," ");
+  loadDashboard();
+}
+
+/* ---------------- TABS ---------------- */
+function switchTab(tab){
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("active", b.dataset.tab===tab));
+  ["dashboard","audience","segmentation","campaigns","ai-studio","templates"].forEach(t=>{
+    document.getElementById("page-"+t).style.display = (t===tab) ? "block" : "none";
+  });
+  if(tab==="dashboard") loadDashboard();
+  if(tab==="audience") loadAudience();
+  if(tab==="campaigns"){ loadCampaigns(); loadTemplatesForDropdown(); }
+  if(tab==="ai-studio") loadAiHistory();
+  if(tab==="templates") loadTemplates();
+}
+
+/* ---------------- DASHBOARD ---------------- */
+async function loadDashboard(){
+  try{
+    const [audience, campaigns, templates] = await Promise.all([
+      api("/audience/?limit=1000"), api("/campaigns/"), api("/templates/")
+    ]);
+    const active = campaigns.filter(c => ["scheduled","sent"].includes(c.status)).length;
+    const stats = [
+      { label:"Total recipients", value: audience.length },
+      { label:"Campaigns in flight", value: active },
+      { label:"Total campaigns", value: campaigns.length },
+      { label:"Templates available", value: templates.length },
+    ];
+    document.getElementById("dash-stats").innerHTML = stats.map(s => `
+      <div class="card"><h3>${s.label}</h3><div class="stat">${s.value}</div></div>
+    `).join("");
+
+    const recent = campaigns.slice(0,5);
+    document.getElementById("dash-recent-campaigns").innerHTML = recent.length ? `
+      <table><thead><tr><th>Title</th><th>Type</th><th>Status</th><th>Audience</th></tr></thead>
+      <tbody>${recent.map(c=>`<tr><td>${c.title}</td><td>${prettyType(c.campaign_type)}</td><td>${pill(c.status)}</td><td class="mono">${c.audience_count}</td></tr>`).join("")}</tbody></table>
+    ` : emptyState("No campaigns yet — create one from the Campaigns tab.");
+  }catch(e){ showToast(e.message, true); }
+}
+
+function prettyType(t){ return t.replace(/_/g," ").replace(/\b\w/g, c=>c.toUpperCase()); }
+function pill(status){ return `<span class="pill ${status}">${status}</span>`; }
+function emptyState(msg){ return `<div class="empty-state"><div class="glyph">◇</div>${msg}</div>`; }
+
+/* ---------------- AUDIENCE ---------------- */
+async function loadAudience(){
+  try{
+    const rows = await api("/audience/?limit=500");
+    document.getElementById("audience-count-label").textContent = rows.length;
+    document.getElementById("audience-table-wrap").innerHTML = rows.length ? `
+      <table><thead><tr><th>Name</th><th>State</th><th>Language</th><th>Org</th><th>Tags</th></tr></thead>
+      <tbody>${rows.map(r=>`<tr><td>${r.full_name}</td><td>${r.state||"—"}</td><td>${r.preferred_language||"—"}</td><td>${r.organization||"—"}</td><td>${r.tags||"—"}</td></tr>`).join("")}</tbody></table>
+    ` : emptyState("No recipients yet — add one or bulk import a CSV.");
+  }catch(e){ showToast(e.message, true); }
+}
+
+async function createAudience(){
+  const payload = {
+    full_name: val("af-name"), email: val("af-email")||null, phone: val("af-phone")||null,
+    state: val("af-state")||null, district: val("af-district")||null,
+    preferred_language: val("af-lang")||null, occupation: val("af-occupation")||null,
+    organization: val("af-org")||null, department: val("af-dept")||null, tags: val("af-tags")||null,
+  };
+  if(!payload.full_name){ showToast("Full name is required.", true); return; }
+  try{
+    await api("/audience/", { method:"POST", body: payload });
+    showToast("Recipient added.");
+    ["af-name","af-email","af-phone","af-state","af-district","af-lang","af-occupation","af-org","af-dept","af-tags"].forEach(id=>document.getElementById(id).value="");
+    loadAudience();
+  }catch(e){ showToast(e.message, true); }
+}
+
+async function bulkImport(){
+  const fileInput = document.getElementById("bulk-file");
+  if(!fileInput.files.length){ showToast("Choose a file first.", true); return; }
+  const form = new FormData();
+  form.append("file", fileInput.files[0]);
+  try{
+    const result = await api("/audience/bulk-import", { method:"POST", body: form, isForm:true });
+    document.getElementById("bulk-result").innerHTML =
+      `Imported <b>${result.imported}</b> of ${result.total_rows} rows. Skipped: ${result.skipped}.` +
+      (result.errors.length ? `<br>${result.errors.join("<br>")}` : "");
+    showToast(`Imported ${result.imported} recipients.`);
+    loadAudience();
+  }catch(e){ showToast(e.message, true); }
+}
+
+/* ---------------- SEGMENTATION ---------------- */
+function segParams(){
+  return {
+    state: val("seg-state"), district: val("seg-district"), preferred_language: val("seg-lang"),
+    organization: val("seg-org"), department: val("seg-dept"), occupation: val("seg-occupation"), tag: val("seg-tag"),
+  };
+}
+function buildQuery(obj){
+  const p = new URLSearchParams();
+  Object.entries(obj).forEach(([k,v])=>{ if(v) p.append(k,v); });
+  return p.toString();
+}
+
+async function runSegmentation(){
+  try{
+    const qs = buildQuery(segParams());
+    const rows = await api("/audience/segment/query" + (qs?`?${qs}`:""));
+    document.getElementById("seg-count-value").textContent = rows.length;
+    document.getElementById("seg-table-wrap").innerHTML = rows.length ? `
+      <table><thead><tr><th>Name</th><th>State</th><th>District</th><th>Language</th><th>Org</th></tr></thead>
+      <tbody>${rows.map(r=>`<tr><td>${r.full_name}</td><td>${r.state||"—"}</td><td>${r.district||"—"}</td><td>${r.preferred_language||"—"}</td><td>${r.organization||"—"}</td></tr>`).join("")}</tbody></table>
+    ` : emptyState("No recipients match this filter combination.");
+  }catch(e){ showToast(e.message, true); }
+}
+
+/* ---------------- TEMPLATES ---------------- */
+async function loadTemplates(){
+  try{
+    const rows = await api("/templates/");
+    document.getElementById("templates-table-wrap").innerHTML = rows.length ? `
+      <table><thead><tr><th>Name</th><th>Type</th><th>Language</th></tr></thead>
+      <tbody>${rows.map(r=>`<tr><td>${r.name}</td><td>${prettyType(r.campaign_type||"—")}</td><td>${r.language}</td></tr>`).join("")}</tbody></table>
+    ` : emptyState("No templates yet — create one to reuse across campaigns.");
+  }catch(e){ showToast(e.message, true); }
+}
+
+async function loadTemplatesForDropdown(){
+  try{
+    const rows = await api("/templates/");
+    const sel = document.getElementById("cf-template");
+    sel.innerHTML = `<option value="">— none —</option>` + rows.map(r=>`<option value="${r.id}">${r.name}</option>`).join("");
+  }catch(e){ /* silent */ }
+}
+
+async function createTemplate(){
+  const payload = { name: val("tf-name"), campaign_type: val("tf-type"), language: val("tf-lang")||"English", subject: val("tf-subject")||null, body: val("tf-body") };
+  if(!payload.name || !payload.body){ showToast("Name and body are required.", true); return; }
+  try{
+    await api("/templates/", { method:"POST", body: payload });
+    showToast("Template saved.");
+    ["tf-name","tf-subject","tf-body"].forEach(id=>document.getElementById(id).value="");
+    loadTemplates();
+  }catch(e){ showToast(e.message, true); }
+}
+
+/* ---------------- CAMPAIGNS ---------------- */
+async function loadCampaigns(){
+  try{
+    const rows = await api("/campaigns/");
+    document.getElementById("campaigns-table-wrap").innerHTML = rows.length ? `
+      <table><thead><tr><th>Title</th><th>Type</th><th>Status</th><th>Audience</th><th>Action</th></tr></thead>
+      <tbody>${rows.map(c=>`<tr>
+        <td>${c.title}</td><td>${prettyType(c.campaign_type)}</td><td>${pill(c.status)}</td><td class="mono">${c.audience_count}</td>
+        <td>${nextActionButton(c)}</td>
+      </tr>`).join("")}</tbody></table>
+    ` : emptyState("No campaigns yet.");
+  }catch(e){ showToast(e.message, true); }
+}
+
+function nextActionButton(c){
+  const flow = { draft:"review", review:"scheduled", scheduled:"sent", sent:"completed" };
+  const next = flow[c.status];
+  if(!next) return "—";
+  return `<button class="btn small ghost" onclick="advanceCampaign(${c.id}, '${next}')">Mark ${next}</button>`;
+}
+
+async function advanceCampaign(id, status){
+  try{
+    await api(`/campaigns/${id}/status`, { method:"PATCH", body: { status } });
+    showToast(`Campaign moved to "${status}".`);
+    loadCampaigns();
+  }catch(e){ showToast(e.message, true); }
+}
+
+async function previewCampaignSegment(){
+  const params = { state: val("cf-seg-state"), preferred_language: val("cf-seg-lang"), organization: val("cf-seg-org"), department: val("cf-seg-dept") };
+  try{
+    const qs = buildQuery(params);
+    const res = await api("/audience/segment/count" + (qs?`?${qs}`:""));
+    document.getElementById("cf-seg-preview").style.display = "inline-flex";
+    document.getElementById("cf-seg-preview-count").textContent = res.count;
+  }catch(e){ showToast(e.message, true); }
+}
+
+async function createCampaign(){
+  const title = val("cf-title");
+  if(!title){ showToast("Campaign title is required.", true); return; }
+  const audience_filter = {};
+  [["cf-seg-state","state"],["cf-seg-lang","preferred_language"],["cf-seg-org","organization"],["cf-seg-dept","department"]].forEach(([id,key])=>{
+    const v = val(id); if(v) audience_filter[key] = v;
+  });
+  const payload = {
+    title, campaign_type: val("cf-type"), message_content: val("cf-message")||null,
+    template_id: val("cf-template") ? parseInt(val("cf-template")) : null,
+    audience_filter: Object.keys(audience_filter).length ? audience_filter : null,
+  };
+  try{
+    await api("/campaigns/", { method:"POST", body: payload });
+    showToast("Campaign created as draft.");
+    ["cf-title","cf-message","cf-seg-state","cf-seg-lang","cf-seg-org","cf-seg-dept"].forEach(id=>document.getElementById(id).value="");
+    document.getElementById("cf-seg-preview").style.display="none";
+    loadCampaigns(); loadDashboard();
+  }catch(e){ showToast(e.message, true); }
+}
+
+/* ---------------- helpers ---------------- */
+function val(id){ return document.getElementById(id).value.trim(); }
+
+/* ---------------- AI CONTENT STUDIO (Milestone 2) ---------------- */
+async function generateContent(){
+  const brief = val("ai-gen-brief");
+  if(!brief){ showToast("Enter a brief first.", true); return; }
+  const payload = {
+    campaign_type: val("ai-gen-type"),
+    brief,
+    target_language: val("ai-gen-lang") || "English",
+    channel: val("ai-gen-channel"),
+    tone: val("ai-gen-tone") || null,
+    audience_context: val("ai-gen-audience") || null,
+  };
+  try{
+    showToast("Generating content...");
+    const res = await api("/ai/generate", { method:"POST", body: payload });
+    document.getElementById("ai-output-text").value = res.content;
+    showToast("Draft generated.");
+    loadAiHistory();
+  }catch(e){ showToast(e.message, true); }
+}
+
+async function translateContent(){
+  const text = val("ai-translate-text");
+  const lang = val("ai-translate-lang");
+  const source = val("ai-translate-source") || "English";
+  const engine = val("ai-translate-engine");
+  if(!text || !lang){ showToast("Enter text and a target language.", true); return; }
+  try{
+    showToast(engine === "bhashini" ? "Translating via Bhashini..." : "Translating via Claude...");
+    const res = await api("/ai/translate", { method:"POST", body: { text, source_language: source, target_language: lang, engine } });
+    document.getElementById("ai-output-text").value = res.translated_text;
+    showToast(`Translated to ${lang} (${res.engine}).`);
+    loadAiHistory();
+  }catch(e){ showToast(e.message, true); }
+}
+
+async function analyzeSentiment(){
+  const text = val("ai-output-text");
+  if(!text){ showToast("Nothing to analyze yet — generate or paste text first.", true); return; }
+  try{
+    const res = await api("/ai/analyze-sentiment", { method:"POST", body: { text } });
+    document.getElementById("ai-sentiment-result").innerHTML = `
+      <div class="flex-row" style="margin-bottom:8px"><span class="pill review">${res.sentiment}</span></div>
+      <p style="margin:0 0 10px">${res.tone_notes}</p>
+      ${res.suggested_improvements.length ? `<ul style="margin:0;padding-left:18px">${res.suggested_improvements.map(s=>`<li>${s}</li>`).join("")}</ul>` : `<p class="muted" style="margin:0">No improvements suggested.</p>`}
+    `;
+    loadAiHistory();
+  }catch(e){ showToast(e.message, true); }
+}
+
+async function runComplianceCheck(){
+  const text = val("ai-output-text");
+  if(!text){ showToast("Nothing to check yet — generate or paste text first.", true); return; }
+  const channel = val("ai-gen-channel") || "general";
+  try{
+    const res = await api("/ai/compliance-check", { method:"POST", body: { text, channel } });
+    const statusPill = res.passed ? `<span class="pill completed">Passed</span>` : `<span class="pill cancelled">Needs attention</span>`;
+    document.getElementById("ai-compliance-result").innerHTML = `
+      <div class="flex-row" style="margin-bottom:10px">${statusPill}<span class="muted mono">${res.character_count} characters</span></div>
+      ${res.issues.length ? `<table><thead><tr><th>Severity</th><th>Issue</th></tr></thead><tbody>
+        ${res.issues.map(i=>`<tr><td><span class="pill ${i.severity==='critical'?'cancelled':i.severity==='warning'?'review':'draft'}">${i.severity}</span></td><td>${i.issue}</td></tr>`).join("")}
+      </tbody></table>` : `<p class="muted" style="margin:0">No issues found.</p>`}
+    `;
+    loadAiHistory();
+  }catch(e){ showToast(e.message, true); }
+}
+
+function copyToCampaign(){
+  const text = val("ai-output-text");
+  if(!text){ showToast("Nothing to copy yet.", true); return; }
+  switchTab("campaigns");
+  document.getElementById("cf-message").value = text;
+  showToast("Draft copied into new campaign message field.");
+}
+
+async function loadAiHistory(){
+  try{
+    const rows = await api("/ai/history");
+    document.getElementById("ai-history-wrap").innerHTML = rows.length ? `
+      <table><thead><tr><th>Action</th><th>Language</th><th>Preview</th><th>When</th></tr></thead>
+      <tbody>${rows.slice(0,10).map(r=>`<tr>
+        <td>${prettyType(r.action)}</td><td>${r.language||"—"}</td>
+        <td>${(r.output_text||r.input_brief||"").slice(0,60)}${(r.output_text||r.input_brief||"").length>60?"…":""}</td>
+        <td class="mono">${new Date(r.created_at).toLocaleString()}</td>
+      </tr>`).join("")}</tbody></table>
+    ` : emptyState("No AI activity yet — generate or translate something above.");
+  }catch(e){ /* silent - AI history isn't critical path */ }
+}
+
+/* ---------------- boot ---------------- */
+document.getElementById("ai-translate-engine")?.addEventListener("change", function(){
+  document.getElementById("ai-translate-hint").style.display = this.value === "bhashini" ? "block" : "none";
+});
+if(state.token && state.user){ enterApp(); }
+</script>
+</body>
+</html>
