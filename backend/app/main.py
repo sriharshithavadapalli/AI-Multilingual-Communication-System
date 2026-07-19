@@ -1,47 +1,54 @@
-"""
-Milestone 1 — Audience Management & Campaign Planning Module
-Main FastAPI application entry point.
+from dotenv import load_dotenv
+load_dotenv()  # must run before ai_service (or anything else) reads os.getenv() at import time
 
-Run with:  uvicorn app.main:app --reload --port 8000
-Docs at:   http://localhost:8000/docs
-"""
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.core.database import Base, engine
-from app.models import user, audience, template, campaign, content_generation  # noqa: F401 (ensure models are registered)
-from app.routers import auth, audience as audience_router, templates, campaigns, ai_content
+from .database import Base, engine
+from .routers import auth_router, audience_router, ai_router, distribution_router, analytics_router, template_router
 
-# Create all tables (use Alembic migrations in production instead of create_all)
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="AI-Based Multilingual Mass Communication Platform",
-    description="Milestone 1: audience management, segmentation, campaign planning, templates. "
-                "Milestone 2: AI content generation, multilingual translation, personalization, "
-                "sentiment analysis, and compliance validation.",
-    version="2.0.0",
+    title="AI-Based Multilingual Mass Communication & Public Awareness Management Platform",
+    description=(
+        "End-to-end platform for organizations to create, translate, personalize, "
+        "distribute, and monitor multilingual communication campaigns across "
+        "email, SMS, WhatsApp, push, and web channels."
+    ),
+    version="1.0.0",
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # restrict this to your frontend URL in production
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-app.include_router(auth.router)
+app.include_router(auth_router.router)
 app.include_router(audience_router.router)
-app.include_router(templates.router)
-app.include_router(campaigns.router)
-app.include_router(ai_content.router)
+app.include_router(ai_router.router)
+app.include_router(distribution_router.router)
+app.include_router(analytics_router.router)
+app.include_router(template_router.router)
 
 
-@app.get("/", tags=["Health"])
+@app.get("/")
 def root():
     return {
         "status": "ok",
-        "module": "Milestone 1 - Audience Management & Campaign Planning",
+        "platform": "AI-Based Multilingual Mass Communication & Public Awareness Management Platform",
+        "modules": [
+            "Audience Management & Campaign Planning",
+            "AI Content Generation & Multilingual Communication Engine",
+            "Multi-Channel Distribution & Engagement Analytics Platform",
+        ],
         "docs": "/docs",
     }
+
+
+@app.get("/health")
+def health():
+    return {"status": "healthy"}
