@@ -12,6 +12,7 @@ import CampaignDetail from './pages/CampaignDetail'
 import Templates from './pages/Templates'
 import Analytics from './pages/Analytics'
 import Feedback from './pages/Feedback'
+import CanvasStudio from "./pages/CanvasStudio";
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
         <Route path="/templates" element={<ProtectedRoute><Templates /></ProtectedRoute>} />
         <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
         <Route path="/feedback" element={<ProtectedRoute><Feedback /></ProtectedRoute>} />
+        <Route path="/canvas-studio" element={<ProtectedRoute><CanvasStudio /></ProtectedRoute>} />
       </Routes>
     </AuthProvider>
   )

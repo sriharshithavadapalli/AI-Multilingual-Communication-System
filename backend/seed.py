@@ -96,7 +96,8 @@ async def seed_campaigns():
         content_row = models.CampaignContent(
             campaign_id=campaign.id, language="English", tone=camp_def["tone"],
             content=english, generated_by_ai=True,
-            compliance_ok=compliance["ok"], compliance_notes=compliance["notes"],
+           compliance_ok=compliance["compliance_ok"],
+          compliance_notes=compliance["compliance_notes"],
         )
         db.add(content_row)
 

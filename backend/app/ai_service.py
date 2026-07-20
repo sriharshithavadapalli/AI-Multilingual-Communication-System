@@ -108,19 +108,66 @@ def _mock_generate(brief: str, tone: str) -> str:
 
 
 async def generate_content(brief: str, tone: str, campaign_type: str) -> str:
+
     if not GROQ_API_KEY:
         return _mock_generate(brief, tone)
-    system = (
-        "You are a public communications writer for government and civic "
-        "organizations. Write clear, accessible campaign copy for mass "
-        f"communication of type '{campaign_type}' with a '{tone}' tone. "
-        "Keep it under 120 words, plain language, no markdown."
-    )
+
+    tone_instruction = {
+        "friendly": (
+            "Write in a warm, encouraging and conversational style. "
+            "Make the reader feel welcomed and supported."
+        ),
+
+        "formal": (
+            "Write in a professional, official government communication style. "
+            "Use respectful and formal language."
+        ),
+
+        "urgent": (
+            "Write with a strong sense of urgency. "
+            "Encourage immediate action while remaining calm and responsible."
+        ),
+
+        "informative": (
+            "Write clearly and factually. "
+            "Focus on providing useful information and guidance."
+        ),
+    }
+
+    system = """
+You are an expert campaign content writer for government and public awareness organizations.
+
+Your job is to create ONE high-quality campaign message.
+
+Rules:
+- Keep it between 80 and 120 words.
+- Make the writing style noticeably match the requested tone.
+- Don't use markdown.
+- Don't add titles.
+- Return only the campaign message.
+"""
+
+    prompt = f"""
+Campaign Type:
+{campaign_type}
+
+Campaign Brief:
+{brief}
+
+Required Tone:
+{tone}
+
+Writing Style:
+{tone_instruction.get(tone, tone_instruction["informative"])}
+
+Generate the campaign message now.
+"""
+
     try:
-        return await _call_groq(system, brief)
+        return await _call_groq(system, prompt)
+
     except Exception:
         return _mock_generate(brief, tone)
-
 
 def _mock_translate(content: str, language: str) -> str:
     sample = INDIAN_LANGUAGE_SAMPLES.get(language, content)
@@ -352,3 +399,70 @@ def check_compliance(content: str) -> Dict:
         "readability": readability,
         "suggestions": suggestions,
     }
+
+async def chatbot_response(question: str) -> str:
+
+    system = """
+You are the official AI Assistant for the AI-Based Multilingual Mass Communication
+& Public Awareness Management Platform.
+
+Your purpose is to help users understand and use this platform.
+
+Platform Overview:
+- This platform helps organizations create and manage multilingual public awareness campaigns.
+- AI is used to generate campaign content, translate messages, personalize communication, analyze sentiment, and monitor campaign performance.
+
+Main Modules:
+1. User Authentication
+   - Register
+   - Login
+   - User Roles
+
+2. Audience Management
+   - Add audience
+   - Import audience
+   - Manage recipients
+   - Language preferences
+
+3. AI Content Generation
+   - Generate campaign messages
+   - Rewrite content
+   - Improve communication
+
+4. Multilingual Translation
+   - Translate messages into Indian languages
+   - Preserve meaning and tone
+
+5. Campaign Distribution
+   - Email
+   - SMS
+   - WhatsApp
+   - Push Notifications
+   - Web Notifications
+
+6. Analytics Dashboard
+   - Delivery Rate
+   - Open Rate
+   - Click Rate
+   - Audience Reach
+   - Channel Performance
+
+Always:
+- Answer clearly.
+- Keep answers concise.
+- Guide users step by step when they ask how to use a feature.
+- If the question is unrelated to the platform, answer briefly and then return focus to the platform if appropriate.
+- Never invent platform features that do not exist.
+"""
+
+    if not GROQ_API_KEY:
+        return (
+            "AI chatbot is running in demo mode. "
+            "Please configure GROQ_API_KEY for intelligent responses."
+        )
+
+    try:
+        return await _call_groq(system, question)
+
+    except Exception:
+        return "Sorry, I couldn't generate a response."

@@ -9,6 +9,7 @@ const items = [
   { to: '/templates', label: 'Templates', glyph: '▤' },
   { to: '/analytics', label: 'Analytics', glyph: '◫' },
   { to: '/feedback', label: 'Feedback', glyph: '✦' },
+  { to: '/canvas-studio', label: 'Canvas Studio', glyph: '🎨' },
 ]
 
 export default function Sidebar() {

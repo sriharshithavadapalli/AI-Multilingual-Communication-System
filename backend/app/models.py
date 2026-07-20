@@ -1,5 +1,6 @@
 import enum
 import uuid
+from sqlalchemy import Text
 from datetime import datetime
 
 from sqlalchemy import (
@@ -107,6 +108,10 @@ class Campaign(Base):
 
     contents = relationship("CampaignContent", back_populates="campaign", cascade="all, delete-orphan")
     messages = relationship("Message", back_populates="campaign", cascade="all, delete-orphan")
+    posters = relationship(
+    "Poster",
+    back_populates="campaign"
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -158,3 +163,31 @@ class EngagementEvent(Base):
     sentiment = Column(String, default="")  # positive|neutral|negative
     comment = Column(Text, default="")
     created_at = Column(DateTime, default=datetime.utcnow)
+
+class Poster(Base):
+    __tablename__ = "posters"
+
+    id = Column(String, primary_key=True, default=gen_id)
+
+    campaign_id = Column(
+        String,
+        ForeignKey("campaigns.id"),
+        nullable=False
+    )
+
+    title = Column(String, nullable=False)
+
+    language = Column(String, default="English")
+
+    content = Column(Text, default="")
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+
+    campaign = relationship(
+        "Campaign",
+        back_populates="posters"
+    )

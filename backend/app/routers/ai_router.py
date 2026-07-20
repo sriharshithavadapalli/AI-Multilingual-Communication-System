@@ -19,6 +19,7 @@ async def generate_content(
     if not campaign:
         raise HTTPException(404, "Campaign not found")
 
+    print("Selected Tone:", payload.tone)
     generated = await ai_service.generate_content(payload.brief, payload.tone, campaign.type.value)
     compliance = ai_service.check_compliance(generated)
 

@@ -173,5 +173,10 @@ class TrackEventRequest(BaseModel):
     event_type: str  # open | click | response | feedback
     comment: str = ""
 
+class ChatRequest(BaseModel):
+    question: str
 
+
+class ChatResponse(BaseModel):
+    answer: str
       
