@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import api from '../api'
+import api from '../services/api'
 
 const TYPE_COLORS = {
   awareness: 'text-teal border-teal/30 bg-teal/10',

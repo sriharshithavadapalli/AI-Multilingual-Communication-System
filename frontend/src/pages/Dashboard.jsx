@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
-import api from '../api'
+import api from '../services/api'
 import StatCard from '../components/StatCard'
 import Chatbot from "../components/Chatbot";
 

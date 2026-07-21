@@ -2,11 +2,11 @@ import enum
 import uuid
 from sqlalchemy import Text
 from datetime import datetime
-
 from sqlalchemy import (
     Column, String, Integer, Float, Boolean, DateTime, ForeignKey, Text, Enum
 )
 from sqlalchemy.orm import relationship
+from datetime import datetime
 
 from .database import Base
 
@@ -95,22 +95,75 @@ class Template(Base):
 
 class Campaign(Base):
     __tablename__ = "campaigns"
-    id = Column(String, primary_key=True, default=gen_id)
-    name = Column(String, nullable=False)
-    description = Column(Text, default="")
-    type = Column(Enum(CampaignTypeEnum), default=CampaignTypeEnum.announcement)
-    status = Column(Enum(CampaignStatusEnum), default=CampaignStatusEnum.draft)
-    created_by = Column(String, ForeignKey("users.id"), nullable=True)
-    segment_filter = Column(Text, default="{}")  # JSON string of segmentation filters
-    channels = Column(String, default="")  # comma separated ChannelEnum values
-    scheduled_at = Column(DateTime, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
 
-    contents = relationship("CampaignContent", back_populates="campaign", cascade="all, delete-orphan")
-    messages = relationship("Message", back_populates="campaign", cascade="all, delete-orphan")
+    id = Column(
+        String,
+        primary_key=True,
+        default=gen_id
+    )
+
+    name = Column(
+        String,
+        nullable=False
+    )
+
+    description = Column(
+        Text,
+        default=""
+    )
+
+    type = Column(
+        Enum(CampaignTypeEnum),
+        default=CampaignTypeEnum.announcement
+    )
+
+    status = Column(
+        Enum(CampaignStatusEnum),
+        default=CampaignStatusEnum.draft
+    )
+
+    created_by = Column(
+        String,
+        ForeignKey("users.id"),
+        nullable=True
+    )
+
+    segment_filter = Column(
+        Text,
+        default="{}"
+    )
+
+    channels = Column(
+        String,
+        default=""
+    )
+
+    scheduled_at = Column(
+        DateTime,
+        nullable=True
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+    contents = relationship(
+        "CampaignContent",
+        back_populates="campaign",
+        cascade="all, delete-orphan"
+    )
+
+    messages = relationship(
+        "Message",
+        back_populates="campaign",
+        cascade="all, delete-orphan"
+    )
+
     posters = relationship(
-    "Poster",
-    back_populates="campaign"
+        "Poster",
+        back_populates="campaign",
+        cascade="all, delete-orphan"
     )
 
 
@@ -181,6 +234,8 @@ class Poster(Base):
 
     content = Column(Text, default="")
 
+    image_url = Column(String, nullable=True)
+
     created_at = Column(
         DateTime,
         default=datetime.utcnow
@@ -190,4 +245,69 @@ class Poster(Base):
     campaign = relationship(
         "Campaign",
         back_populates="posters"
+    )
+
+class LiveBulletin(Base):
+    __tablename__ = "live_bulletins"
+
+    id = Column(
+        String,
+        primary_key=True,
+        index=True,
+        default=gen_id
+    )
+
+    title = Column(
+        String(255),
+        nullable=False
+    )
+
+    content = Column(
+        Text,
+        nullable=False
+    )
+
+    category = Column(
+        String(100),
+        nullable=False
+    )
+
+    priority = Column(
+        String(50),
+        default="Medium"
+    )
+
+    status = Column(
+        String(50),
+        default="Draft"
+    )
+
+    target_location = Column(
+        String(255),
+        nullable=True
+    )
+
+    languages = Column(
+        String(500),
+        nullable=True
+    )
+
+    channels = Column(
+        String(500),
+        nullable=True
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+    published_at = Column(
+        DateTime,
+        nullable=True
+    )
+
+    expires_at = Column(
+        DateTime,
+        nullable=True
     )
