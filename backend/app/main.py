@@ -10,6 +10,8 @@ from .routers import chatbot_router
 from app.routers import poster_router
 from .routers import bulletins
 
+
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
