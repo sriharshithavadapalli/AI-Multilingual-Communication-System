@@ -21,7 +21,7 @@ export default function Sidebar() {
       <div className="px-5 py-6 border-b border-border">
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full bg-signal animate-pulse" />
-          <span className="font-display font-semibold text-lg tracking-tight">Setu</span>
+          <span className="font-display font-semibold text-lg tracking-tight">JanConnect AI</span>
         </div>
         <p className="text-[11px] text-text-dim mt-1 leading-snug">
           Multilingual Mass Communication &amp; Public Awareness Platform

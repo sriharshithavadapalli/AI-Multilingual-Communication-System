@@ -23,7 +23,8 @@ export default function Landing() {
       <nav className="flex items-center justify-between px-8 py-5 border-b border-border">
         <div className="flex items-center gap-2">
           <span className="w-2.5 h-2.5 rounded-full bg-signal animate-pulse" />
-          <span className="font-display font-semibold text-lg">Setu.Conn</span>
+          <span className="font-display font-semibold text-lg"></span>
+          <span className="font-display font-semibold text-lg">JanConnect AI</span>
         </div>
       </nav>
 

@@ -29,7 +29,7 @@ export default function Login() {
       <div className="w-full max-w-sm">
         <div className="flex items-center gap-2 mb-1 justify-center">
           <span className="w-2.5 h-2.5 rounded-full bg-signal animate-pulse" />
-          <span className="font-display font-semibold text-2xl">Setu</span>
+          <span className="font-display font-semibold text-2xl">JanConnect AI</span>
         </div>
         <p className="text-center text-text-dim text-sm mb-8">
           Multilingual Mass Communication &amp; Public Awareness Platform
